@@ -164,7 +164,7 @@ Hata formatı ve endpoint'ler: [docs/api/api-design.md](docs/api/api-design.md).
 
 ## Production Deploy
 
-Frontend Cloudflare Pages'te, backend Render'da (Frankfurt, Docker), veritabanı Neon'da (Frankfurt), e-posta Resend SMTP ile çalışır. Tarayıcı yalnızca Pages adresiyle konuşur; `/api/*` istekleri Pages Function (`frontend/functions/api`) ile Render'a iletilir. Her iki servis de GitHub reposundan otomatik deploy edilir.
+Frontend Cloudflare Workers'ta (statik dosyalar + proxy, `frontend/wrangler.jsonc`), backend Render'da (Frankfurt, Docker), veritabanı Neon'da (Frankfurt), e-posta Resend SMTP ile çalışır. Tarayıcı yalnızca Worker adresiyle konuşur; `/api/*` istekleri Worker kodu (`frontend/worker`) ile Render'a iletilir. Her iki servis de GitHub reposundan otomatik deploy edilir.
 
 - `backend/Dockerfile`: Render production imajı. `Dockerfile.dev` dosyaları yalnızca `docker compose` içindir.
 - Adım adım kurulum, secret'lar ve güncelleme: [docs/deployment/deployment.md](docs/deployment/deployment.md).

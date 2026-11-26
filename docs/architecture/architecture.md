@@ -251,9 +251,10 @@ frontend/
 │   ├── pages/        (route bileşenleri; feature component'lerini birleştirir)
 │   ├── lib/          (http client, utils)
 │   └── locales/      (tr.json, en.json)
-├── functions/api/    (Cloudflare Pages Function: /api/* → Render proxy)
+├── worker/           (Cloudflare Worker: /api/* → Render proxy; diğer adresler statik React build)
+├── wrangler.jsonc    (Worker ayarları)
 ├── .env.example
-└── Dockerfile.dev    (docker compose; production'da Cloudflare Pages statik dosyaları sunar)
+└── Dockerfile.dev    (docker compose; production'da Cloudflare Workers statik dosyaları sunar)
 ```
 
 Production dağıtımı: `docs/deployment/deployment.md`.

@@ -3,9 +3,9 @@
 Kitaphane production ortamı dört servisten oluşur:
 
 ```text
-Tarayıcı ──> Cloudflare Pages (kitaphane.pages.dev)
-               ├── /*        React uygulaması (statik dosyalar, SPA)
-               └── /api/*    Pages Function (frontend/functions/api/[[path]].ts)
+Tarayıcı ──> Cloudflare Worker (kitaphane.<hesap>.workers.dev)
+               ├── /*        React uygulaması (Workers static assets, SPA)
+               └── /api/*    Worker kodu (frontend/worker/index.ts)
                                │  + X-Kitaphane-Proxy-Secret, X-Kitaphane-Client-IP
                                ▼
                  Render Web Service (Frankfurt, Docker) ── ASP.NET Core API
@@ -17,12 +17,13 @@ Tarayıcı ──> Cloudflare Pages (kitaphane.pages.dev)
 Kararlar (2026-11-26):
 
 - **Backend Render'ın ücretsiz planında:** Kart bilgisi gerektirmez. Ücretsiz servis 15 dakika istek almazsa uyur; uyuyan servise gelen ilk istek, servis yeniden başlayana kadar 30–60 saniye bekler. Neon da boşta kalan veritabanını uyutur (ilk bağlantı birkaç saniye sürer; API bağlantı hatalarında 3 kez yeniden dener).
-- **Tek origin:** Tarayıcı yalnızca Pages adresiyle konuşur; `/api/*` istekleri Pages Function ile Render'a iletilir. Bu sayede CORS gerekmez ve `SameSite=Strict` refresh token çerezi değişmeden çalışır (`*.pages.dev` ile `*.onrender.com` farklı siteler olduğu için doğrudan çağrıda çerez gönderilmezdi).
-- **Backend yalnızca proxy'den erişilebilir:** Production'da `PROXY_SHARED_SECRET` zorunludur. Bu başlığı taşımayan istekler 403 `FORBIDDEN` alır (yalnızca `/api/health` açıktır). Proxy ziyaretçinin IP'sini (`CF-Connecting-IP`) `X-Kitaphane-Client-IP` olarak iletir; auth rate limit bu IP'ye göre uygulanır. İki başlık da proxy'de her zaman üzerine yazılır, ziyaretçi tarafından taklit edilemez.
+- **Frontend Cloudflare Workers'ta:** Önce Cloudflare Pages denendi; ancak Türkiye'deki bazı internet sağlayıcıları `*.pages.dev` adreslerini engelliyor (bağlantı zaman aşımı), `*.workers.dev` ise erişilebilir. Bu yüzden React uygulaması ve proxy tek bir Worker'da çalışır (`frontend/wrangler.jsonc`).
+- **Tek origin:** Tarayıcı yalnızca Worker adresiyle konuşur; `/api/*` istekleri Worker kodu ile Render'a iletilir. Bu sayede CORS gerekmez ve `SameSite=Strict` refresh token çerezi değişmeden çalışır (`*.workers.dev` ile `*.onrender.com` farklı siteler olduğu için doğrudan çağrıda çerez gönderilmezdi).
+- **Backend yalnızca proxy'den erişilebilir:** Production'da `PROXY_SHARED_SECRET` zorunludur. Bu başlığı taşımayan istekler 403 `FORBIDDEN` alır (yalnızca `/api/health` açıktır). Proxy ziyaretçinin IP'sini (`CF-Connecting-IP`) `X-Kitaphane-Client-IP` olarak iletir; auth rate limit bu IP'ye göre uygulanır. İki başlık da proxy'de her zaman üzerine yazılır, ziyaretçi tarafından taklit edilemez. Render da Cloudflare arkasında olduğundan proxy `cf-*`, `x-forwarded-*` ve `x-real-ip` başlıklarını iletmez (Render'ın önündeki Cloudflare `CF-Connecting-IP` taşıyan istekleri 403 ile reddeder).
 - **HTTPS:** Render TLS'i sonlandırır ve `X-Forwarded-Proto` gönderir; API bu başlığa güvenir (`UseForwardedHeaders`). İmaj, Render'ın verdiği `PORT`'u dinler (yoksa 8080).
 - **Migration'lar ayrı adımdır:** API production'da migration çalıştırmaz; idempotent SQL betiği her sürümde Neon'a uygulanır.
-- **Otomatik deploy:** Kod özel bir GitHub reposundadır; Render ve Cloudflare Pages bu repoya bağlıdır ve `main` dalına her push'ta otomatik deploy eder.
-- **Alan adı yok:** Frontend `<proje>.pages.dev` adresindedir. Resend doğrulanmış alan adı olmadan yalnızca Resend hesabının e-posta adresine gönderim yapabilir; gerçek kullanıcılar kayıt/şifre kodu alabilsin diye bir alan adı bağlanıp Resend'de doğrulanmalıdır (bkz. §7).
+- **Otomatik deploy:** Kod özel bir GitHub reposundadır; Render ve Cloudflare Workers (Workers Builds) bu repoya bağlıdır ve `main` dalına her push'ta otomatik deploy eder.
+- **Alan adı yok:** Frontend `kitaphane.<hesap>.workers.dev` adresindedir. Resend doğrulanmış alan adı olmadan yalnızca Resend hesabının e-posta adresine gönderim yapabilir; gerçek kullanıcılar kayıt/şifre kodu alabilsin diye bir alan adı bağlanıp Resend'de doğrulanmalıdır (bkz. §7).
 
 Komutlar repo kök dizininden çalıştırılır. `<...>` ile gösterilen değerleri kendi değerlerinle değiştir.
 
@@ -66,7 +67,7 @@ docker run --rm -i -e DATABASE_URL="$(cat neon-url.txt)" postgres:17-alpine \
 
 ## 4. Render (backend)
 
-JWT ve proxy anahtarlarını rastgele üret (proxy anahtarı 5. adımda Cloudflare'e de verilir):
+JWT ve proxy anahtarlarını rastgele üret (proxy anahtarı 5. adımda Cloudflare Worker'a da verilir):
 
 ```bash
 openssl rand -base64 48 | tr -d '\n' > jwt-secret.txt
@@ -112,19 +113,20 @@ curl -s https://<render-adresi>/api/health          # 200 Healthy (servis uyuyor
 curl -s -o /dev/null -w "%{http_code}\n" https://<render-adresi>/api/auth/me   # 403 (proxy'siz erişim kapalı)
 ```
 
-## 5. Cloudflare Pages (frontend)
+## 5. Cloudflare Workers (frontend)
 
-Cloudflare panelinde *Workers & Pages → Create → Pages → Connect to Git*:
+Worker ayarları repoda: `frontend/wrangler.jsonc` (Worker adı `kitaphane`, statik dosyalar `dist/`, SPA yönlendirmesi, `/api/*` için Worker kodu, `BACKEND_URL`). Backend adresi değişirse bu dosyadaki `BACKEND_URL` güncellenir.
+
+Daha önce Pages ile `kitaphane` adlı bir proje kurulduysa önce onu sil (*Workers & Pages → kitaphane (Pages) → Settings → Delete project*); Worker aynı adı kullanır.
+
+Cloudflare panelinde *Workers & Pages → Create → Workers → Import a repository*:
 
 1. GitHub'ı bağla (yalnızca bu repoya izin ver) ve repoyu seç.
-2. Project name `kitaphane` (adres `kitaphane.pages.dev` olur; alınmışsa başka bir ad), Production branch `main`.
-3. Build ayarları: Framework preset **None**, Build command `npm run build`, Build output directory `dist`, Root directory **`frontend`**. Node sürümü `frontend/.node-version` dosyasından okunur (24).
-4. *Environment variables* (Production) → her ikisini **Encrypt** ile ekle:
-   - `BACKEND_URL` = Render servis adresi (`https://kitaphane-api.onrender.com`, sonda `/` olmadan)
-   - `PROXY_SHARED_SECRET` = `proxy-secret.txt` içeriği
-5. *Save and Deploy*. `frontend/functions/` klasörü otomatik olarak Pages Function'a çevrilir; `/api/*` dışındaki adresler React uygulamasını açar (SPA).
-
-Değişkenleri ilk derlemeden sonra eklediysen veya değiştirdiysen *Deployments → Retry deployment* ile yeniden deploy et; Functions yeni değerleri ancak yeni deploy'da görür.
+2. Project name `kitaphane` (`wrangler.jsonc`'deki `name` ile aynı olmalı).
+3. Build command `npm run build`, Deploy command `npx wrangler deploy`.
+4. *Advanced settings → Root directory (Path)*: **`frontend`**. Node sürümü `frontend/.node-version` dosyasından okunur (24).
+5. *Create and deploy*. İlk deploy bitince Worker'ın *Settings → Variables and Secrets* bölümünde **Add → Type: Secret**, ad `PROXY_SHARED_SECRET`, değer `proxy-secret.txt` içeriği; *Deploy* ile kaydet. (`BACKEND_URL` `wrangler.jsonc`'den gelir; panelden eklenmez.)
+6. Adres: Worker sayfasındaki *Domains & Routes* altında `kitaphane.<hesap>.workers.dev`. İlk kez Worker açılıyorsa Cloudflare hesap için bir `workers.dev` alt alan adı seçmeni ister.
 
 Kurulum bitince geçici dosyaları sil:
 
@@ -134,7 +136,7 @@ rm -f neon-url.txt resend-api-key.txt google-books-key.txt db-connection.txt jwt
 
 ## 6. Kontrol listesi
 
-- `https://<ad>.pages.dev` açılıyor, `https://<ad>.pages.dev/api/health` 200 dönüyor (backend uyuyorsa ilk istek gecikir).
+- `https://kitaphane.<hesap>.workers.dev` açılıyor, `/api/health` 200 dönüyor (backend uyuyorsa ilk istek gecikir).
 - Resend hesabının e-posta adresiyle kayıt ol: doğrulama kodu gelir, hesap açılır.
 - Sayfayı yenile: oturum korunur (refresh token çerezi çalışıyor).
 - Kitap ekle, Google Books araması yap, profil istatistiklerini aç.
@@ -144,13 +146,13 @@ rm -f neon-url.txt resend-api-key.txt google-books-key.txt db-connection.txt jwt
 Yeni sürüm:
 
 1. Yeni migration varsa önce §2'yi tekrarla (migration, backend'den önce uygulanır).
-2. `main` dalına push: Render backend'i, Cloudflare Pages frontend'i otomatik deploy eder.
+2. `main` dalına push: Render backend'i, Cloudflare Workers frontend'i otomatik deploy eder.
 
-Ortam değişkeni veya secret değiştirmek: Render'da servisin *Environment* sayfasında değeri güncelle ve kaydet; Render yeni değerle yeniden deploy eder. Proxy anahtarı değişirse Cloudflare Pages'teki `PROXY_SHARED_SECRET` de aynı değerle güncellenip yeniden deploy edilmelidir.
+Ortam değişkeni veya secret değiştirmek: Render'da servisin *Environment* sayfasında değeri güncelle ve kaydet; Render yeni değerle yeniden deploy eder. Proxy anahtarı değişirse Worker'daki `PROXY_SHARED_SECRET` secret'ı da aynı değerle güncellenmelidir.
 
 Uyku gecikmesi: Ücretsiz servis 15 dakika boşta kalınca uyur. İstenirse bir uptime servisi `/api/health` adresini 10–14 dakikada bir çağırarak servisi uyanık tutabilir; tek servisin sürekli çalışması Render'ın aylık ücretsiz kullanım saatine sığar, ancak bu Render'ın ücretsiz plan koşullarına bağlıdır ve değişebilir.
 
 Alan adı bağlanınca:
 
-- Cloudflare Pages → Custom domains ile alan adını ekle.
+- Cloudflare'de Worker'a *Settings → Domains & Routes → Add → Custom domain* ile alan adını ekle.
 - Resend → Domains'te alan adını ekleyip DNS kayıtlarını (SPF, DKIM) gir; doğrulanınca Render'da `SMTP_FROM_EMAIL`'i `no-reply@<alan-adı>` yap. Bundan sonra herkese e-posta gönderilebilir.

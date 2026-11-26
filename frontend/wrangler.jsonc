@@ -1,0 +1,20 @@
+// Cloudflare Workers deployment of the frontend (docs/deployment/deployment.md).
+// Build: `npm run build` (creates dist/), deploy: `npx wrangler deploy`.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kitaphane",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // Unknown paths return index.html so React Router can handle them.
+    "not_found_handling": "single-page-application",
+    // Only /api/* reaches the Worker code; every other request is served from the assets directly.
+    "run_worker_first": ["/api/*"]
+  },
+  "vars": {
+    "BACKEND_URL": "https://kitaphane-api.onrender.com"
+  }
+  // PROXY_SHARED_SECRET is a secret: Cloudflare dashboard → Worker → Settings → Variables and Secrets.
+}

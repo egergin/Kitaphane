@@ -1,0 +1,296 @@
+{
+  "app": {
+    "name": "Kitaphane"
+  },
+  "common": {
+    "loading": "Loading...",
+    "retry": "Try again",
+    "backToHome": "Back to home",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "logout": "Log out",
+    "language": "Language",
+    "back": "Back",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "name": "Full name",
+    "confirmPassword": "Confirm password",
+    "code": "Code",
+    "login": {
+      "title": "Log in",
+      "submit": "Log in",
+      "rememberMe": "Keep me signed in",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Sign up"
+    },
+    "register": {
+      "title": "Sign up",
+      "subtitle": "Create your account now",
+      "submit": "Sign up",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in"
+    },
+    "verify": {
+      "title": "Verify code",
+      "subtitle": "Enter the code sent to your email.",
+      "sentTo": "The code was sent to {{email}}.",
+      "submit": "Verify",
+      "resend": "Resend code",
+      "resendIn": "Resend code ({{seconds}}s)",
+      "resent": "A new code has been sent."
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "subtitle": "Enter the email address associated with your account to receive a password reset code.",
+      "submit": "Send code",
+      "backToLogin": "Back to log in"
+    },
+    "reset": {
+      "title": "Create a new password",
+      "subtitle": "Your new password must be different from your current password.",
+      "submit": "Reset password",
+      "success": "Your password has been updated. You can now log in with your new password."
+    },
+    "validation": {
+      "required": "This field is required.",
+      "email": "Enter a valid email address.",
+      "passwordMin": "Password must be at least 8 characters.",
+      "passwordLetter": "Password must contain at least one letter.",
+      "passwordDigit": "Password must contain at least one digit.",
+      "passwordMismatch": "Passwords do not match.",
+      "code": "The code must be 6 digits.",
+      "nameMax": "Name can be at most 100 characters."
+    }
+  },
+  "home": {
+    "title": "My books",
+    "placeholder": "Your books will be listed here.",
+    "empty": "You haven't added any books yet. Start by adding your first book.",
+    "searchResults_one": "{{count}} book found for \"{{term}}\"",
+    "searchResults_other": "{{count}} books found for \"{{term}}\"",
+    "noSearchResults": "No books match \"{{term}}\"."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist or may have moved."
+  },
+  "books": {
+    "addBook": "Add New Book",
+    "addTitle": "Add New Book",
+    "progressLabel": "Reading progress {{percentage}}",
+    "status": {
+      "TO_READ": "To read",
+      "READING": "Reading",
+      "COMPLETED": "Read"
+    },
+    "fields": {
+      "title": "Title",
+      "author": "Author",
+      "isbn": "ISBN",
+      "pageCount": "Total pages",
+      "currentPage": "Pages read",
+      "status": "Status",
+      "rating": "Rating",
+      "coverImage": "Cover image (URL)",
+      "notes": "Notes",
+      "startDate": "Start date",
+      "finishDate": "Finish date"
+    },
+    "form": {
+      "save": "Save",
+      "update": "Save changes",
+      "created": "Book added.",
+      "updated": "Changes saved.",
+      "noRating": "No rating",
+      "untitled": "Book"
+    },
+    "delete": {
+      "button": "Delete book",
+      "title": "Delete this book?",
+      "description": "\"{{title}}\" will be permanently deleted. This cannot be undone.",
+      "confirm": "Delete",
+      "done": "Book deleted."
+    },
+    "validation": {
+      "required": "This field is required.",
+      "tooLong": "This field is too long.",
+      "isbn": "Enter a valid ISBN-10 or ISBN-13.",
+      "pageCount": "Total pages must be a number greater than 0.",
+      "currentPage": "Pages read must be 0 or more.",
+      "currentPageMax": "Pages read cannot be more than total pages.",
+      "coverImage": "Enter a valid http(s) address.",
+      "finishBeforeStart": "Finish date cannot be before the start date."
+    },
+    "ratingLabel": "Rating: {{rating}} / {{max}}",
+    "readList": {
+      "pageCount": "Pages",
+      "empty": "You haven't finished any books yet. Books you mark as \"Read\" are listed here.",
+      "remove": "Remove \"{{title}}\" from books I've read",
+      "removeShort": "Remove from list",
+      "confirmTitle": "Remove from books I've read?",
+      "confirmDescription": "\"{{title}}\" is not deleted; its status changes to \"Reading\" and the finish date is cleared.",
+      "confirm": "Remove from list",
+      "removed": "\"{{title}}\" was removed from books I've read.",
+      "searchResults_one": "{{count}} read book found for \"{{term}}\"",
+      "searchResults_other": "{{count}} read books found for \"{{term}}\"",
+      "noSearchResults": "No read books match \"{{term}}\"."
+    },
+    "detail": {
+      "edit": "Edit",
+      "editTitle": "Edit book",
+      "viewMore": "...View more",
+      "hide": "Hide"
+    }
+  },
+  "googleBooks": {
+    "title": "Search Google Books",
+    "subtitle": "Search by title, author or ISBN; the selected book's details are copied into the form.",
+    "mode": "Search type",
+    "modes": {
+      "text": "Title / author",
+      "isbn": "ISBN"
+    },
+    "textLabel": "Title or author",
+    "isbnLabel": "ISBN (10 or 13 digits)",
+    "search": "Search",
+    "noResults": "No results. Try a different search or enter the details manually.",
+    "select": "Select",
+    "unknownAuthor": "Unknown author",
+    "pages_one": "{{count}} page",
+    "pages_other": "{{count}} pages",
+    "filled": "Book details were copied into the form. Review them and save.",
+    "missingFields": "Some details are missing in Google Books. Fill in the empty fields.",
+    "validation": {
+      "required": "Type something to search."
+    }
+  },
+  "profile": {
+    "userInfo": "User information",
+    "edit": "Edit",
+    "editTitle": "Edit Profile",
+    "stats": {
+      "title": "My Books",
+      "total": "Total books",
+      "completed": "Read",
+      "reading": "Reading",
+      "toRead": "To read"
+    },
+    "reading": {
+      "title": "Reading Statistics",
+      "period": "Period",
+      "periods": {
+        "1m": "Last month",
+        "6m": "Last 6 months",
+        "1y": "Last year"
+      },
+      "completedBooks": "Books completed",
+      "pagesRead": "Pages read",
+      "averageLength": "Average book length",
+      "pagesUnit": "pages",
+      "byAuthor": "Completed books by author",
+      "noBooks": "No books completed in this period.",
+      "bookCount_one": "{{count}} book",
+      "bookCount_other": "{{count}} books"
+    },
+    "account": {
+      "profileTitle": "Profile information",
+      "imageUrl": "Profile image (URL)",
+      "imageHint": "If the image link is empty, your initials are shown. The email address cannot be changed.",
+      "save": "Save",
+      "saved": "Your profile has been updated."
+    },
+    "password": {
+      "title": "Change password",
+      "description": "Changing your password signs you out on other devices.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "New password (again)",
+      "submit": "Change password",
+      "changed": "Your password has been changed."
+    },
+    "validation": {
+      "imageUrl": "Enter a valid http(s) link."
+    }
+  },
+  "readingGoals": {
+    "sectionTitle": "Reading Goals",
+    "add": "Add goal",
+    "title": "{{start}} – {{end}}: {{amount}}",
+    "books_one": "{{formatted}} book",
+    "books_other": "{{formatted}} books",
+    "pages_one": "{{formatted}} page",
+    "pages_other": "{{formatted}} pages",
+    "types": {
+      "BOOK_COUNT": "Book count",
+      "PAGE_COUNT": "Page count"
+    },
+    "fields": {
+      "type": "Goal type",
+      "target": "Target",
+      "startDate": "Start date",
+      "endDate": "End date"
+    },
+    "newTitle": "New reading goal",
+    "editTitle": "Edit reading goal",
+    "formDescription": "Progress is calculated from the books you finish in this date range (page goals also count pages of books you are reading).",
+    "save": "Save",
+    "created": "Reading goal added.",
+    "updated": "Reading goal updated.",
+    "deleted": "Reading goal deleted.",
+    "edit": "Edit goal {{title}}",
+    "reached": "Goal reached",
+    "progressLabel": "Progress of {{title}}",
+    "delete": {
+      "button": "Delete goal {{title}}",
+      "title": "Delete this goal?",
+      "description": "The goal \"{{title}}\" will be deleted permanently. Your books are not affected.",
+      "confirm": "Delete"
+    },
+    "empty": {
+      "title": "You have no reading goals yet.",
+      "description": "Add a goal, for example reading 30 books or 10,000 pages this year."
+    },
+    "validation": {
+      "target": "Enter a whole number between 1 and 1,000,000.",
+      "date": "Choose a date.",
+      "endAfterStart": "The end date must be after the start date."
+    }
+  },
+  "nav": {
+    "label": "Main menu",
+    "home": "Home",
+    "readBooks": "Books I've read",
+    "profile": "Profile",
+    "userMenu": "User menu",
+    "searchPlaceholder": "Search by title or author..."
+  },
+  "errors": {
+    "default": "Something went wrong. Please try again.",
+    "NETWORK_ERROR": "Cannot reach the server. Check your internet connection.",
+    "VALIDATION_ERROR": "Please fix the errors in the form.",
+    "UNAUTHORIZED": "You need to log in to do this.",
+    "FORBIDDEN": "You are not allowed to do this.",
+    "NOT_FOUND": "The requested item was not found.",
+    "METHOD_NOT_ALLOWED": "This action is not supported.",
+    "RATE_LIMITED": "Too many requests. Please wait a moment.",
+    "INTERNAL_ERROR": "Something went wrong. Please try again.",
+    "INVALID_CREDENTIALS": "Incorrect email or password.",
+    "EMAIL_ALREADY_EXISTS": "An account with this email already exists.",
+    "VERIFICATION_CODE_INVALID": "The code is incorrect. Please try again.",
+    "VERIFICATION_CODE_EXPIRED": "The code has expired. Request a new one.",
+    "VERIFICATION_ATTEMPTS_EXCEEDED": "Too many incorrect attempts. Request a new code.",
+    "INVALID_REFRESH_TOKEN": "Your session has expired. Please log in again.",
+    "INVALID_RESET_TOKEN": "The password reset session has expired. Please start again.",
+    "INVALID_CURRENT_PASSWORD": "Your current password is incorrect.",
+    "PASSWORD_SAME_AS_CURRENT": "Your new password must be different from your current password.",
+    "BOOK_NOT_FOUND": "Book not found.",
+    "BOOK_ISBN_EXISTS": "A book with this ISBN is already on your shelf.",
+    "READING_GOAL_NOT_FOUND": "Reading goal not found.",
+    "GOOGLE_BOOKS_UNAVAILABLE": "Google Books is not available right now. Try again later or enter the details manually."
+  }
+}

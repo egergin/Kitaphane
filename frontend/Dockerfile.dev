@@ -1,0 +1,9 @@
+# Development image: runs the Vite dev server with hot reload.
+# Source code is bind-mounted by docker-compose.yml; node_modules lives in a container volume.
+FROM node:24-alpine
+
+WORKDIR /app
+
+EXPOSE 5173
+
+CMD ["sh", "-c", "npm ci --no-audit --no-fund && npm run dev"]

@@ -1,0 +1,296 @@
+{
+  "app": {
+    "name": "Kitaphane"
+  },
+  "common": {
+    "loading": "Yükleniyor...",
+    "retry": "Tekrar dene",
+    "backToHome": "Ana sayfaya dön",
+    "showPassword": "Şifreyi göster",
+    "hidePassword": "Şifreyi gizle",
+    "logout": "Çıkış yap",
+    "language": "Dil",
+    "back": "Geri",
+    "cancel": "Vazgeç",
+    "close": "Kapat"
+  },
+  "auth": {
+    "email": "E-posta",
+    "password": "Şifre",
+    "name": "Ad Soyad",
+    "confirmPassword": "Şifreyi Onayla",
+    "code": "Kod",
+    "login": {
+      "title": "Giriş Yap",
+      "submit": "Giriş Yap",
+      "rememberMe": "Oturumumu açık tut",
+      "forgotPassword": "Şifrenizi mi unuttunuz?",
+      "noAccount": "Hesabınız yok mu?",
+      "registerLink": "Kayıt olun"
+    },
+    "register": {
+      "title": "Kayıt Ol",
+      "subtitle": "Hemen hesap oluşturun",
+      "submit": "Kayıt Ol",
+      "haveAccount": "Zaten hesabınız var mı?",
+      "loginLink": "Giriş yapın"
+    },
+    "verify": {
+      "title": "Kodu Doğrula",
+      "subtitle": "E-postanıza gönderilen kodu girin.",
+      "sentTo": "Kod {{email}} adresine gönderildi.",
+      "submit": "Doğrula",
+      "resend": "Kodu Yeniden Gönder",
+      "resendIn": "Kodu yeniden gönder ({{seconds}} sn)",
+      "resent": "Yeni bir kod gönderildi."
+    },
+    "forgot": {
+      "title": "Şifremi Unuttum",
+      "subtitle": "Hesabınızla ilişkili e-posta adresini girerek şifre sıfırlama kodunu alın.",
+      "submit": "Kodu Gönder",
+      "backToLogin": "Giriş ekranına dön"
+    },
+    "reset": {
+      "title": "Yeni Şifre Oluştur",
+      "subtitle": "Yeni şifreniz mevcut şifrenizden farklı olmalıdır.",
+      "submit": "Şifreyi Sıfırla",
+      "success": "Şifreniz güncellendi. Yeni şifrenizle giriş yapabilirsiniz."
+    },
+    "validation": {
+      "required": "Bu alan zorunludur.",
+      "email": "Geçerli bir e-posta adresi girin.",
+      "passwordMin": "Şifre en az 8 karakter olmalıdır.",
+      "passwordLetter": "Şifre en az bir harf içermelidir.",
+      "passwordDigit": "Şifre en az bir rakam içermelidir.",
+      "passwordMismatch": "Şifreler eşleşmiyor.",
+      "code": "Kod 6 haneli olmalıdır.",
+      "nameMax": "Ad en fazla 100 karakter olabilir."
+    }
+  },
+  "home": {
+    "title": "Kitaplarım",
+    "placeholder": "Kitaplarınız burada listelenecek.",
+    "empty": "Henüz kitap eklemediniz. İlk kitabınızı ekleyerek başlayın.",
+    "searchResults_one": "\"{{term}}\" için {{count}} kitap bulundu",
+    "searchResults_other": "\"{{term}}\" için {{count}} kitap bulundu",
+    "noSearchResults": "\"{{term}}\" ile eşleşen kitap bulunamadı."
+  },
+  "notFound": {
+    "title": "Sayfa bulunamadı",
+    "description": "Aradığınız sayfa mevcut değil veya taşınmış olabilir."
+  },
+  "books": {
+    "addBook": "Yeni Kitap Ekle",
+    "addTitle": "Yeni Kitap Ekle",
+    "progressLabel": "Okuma ilerlemesi {{percentage}}",
+    "status": {
+      "TO_READ": "Okunacak",
+      "READING": "Okunuyor",
+      "COMPLETED": "Okundu"
+    },
+    "fields": {
+      "title": "Kitap Adı",
+      "author": "Yazar",
+      "isbn": "ISBN",
+      "pageCount": "Toplam Sayfa",
+      "currentPage": "Okunan Sayfa",
+      "status": "Durum",
+      "rating": "Puan",
+      "coverImage": "Kapak Görseli (URL)",
+      "notes": "Notlar",
+      "startDate": "Başlangıç Tarihi",
+      "finishDate": "Bitiş Tarihi"
+    },
+    "form": {
+      "save": "Kaydet",
+      "update": "Değişiklikleri Kaydet",
+      "created": "Kitap eklendi.",
+      "updated": "Değişiklikler kaydedildi.",
+      "noRating": "Puan yok",
+      "untitled": "Kitap"
+    },
+    "delete": {
+      "button": "Kitabı Sil",
+      "title": "Kitap silinsin mi?",
+      "description": "\"{{title}}\" kitabı kalıcı olarak silinecek. Bu işlem geri alınamaz.",
+      "confirm": "Sil",
+      "done": "Kitap silindi."
+    },
+    "validation": {
+      "required": "Bu alan zorunludur.",
+      "tooLong": "Bu alan çok uzun.",
+      "isbn": "Geçerli bir ISBN-10 veya ISBN-13 girin.",
+      "pageCount": "Toplam sayfa 0'dan büyük bir sayı olmalıdır.",
+      "currentPage": "Okunan sayfa 0 veya daha büyük bir sayı olmalıdır.",
+      "currentPageMax": "Okunan sayfa toplam sayfadan büyük olamaz.",
+      "coverImage": "Geçerli bir http(s) adresi girin.",
+      "finishBeforeStart": "Bitiş tarihi başlangıç tarihinden önce olamaz."
+    },
+    "ratingLabel": "Puan: {{rating}} / {{max}}",
+    "readList": {
+      "pageCount": "Sayfa Sayısı",
+      "empty": "Henüz okuduğunuz bir kitap yok. Bir kitabı \"Okundu\" olarak işaretlediğinizde burada listelenir.",
+      "remove": "\"{{title}}\" kitabını okuduklarım listesinden çıkar",
+      "removeShort": "Listeden çıkar",
+      "confirmTitle": "Okuduklarım listesinden çıkarılsın mı?",
+      "confirmDescription": "\"{{title}}\" silinmez; durumu \"Okunuyor\" olarak değişir ve bitiş tarihi temizlenir.",
+      "confirm": "Listeden çıkar",
+      "removed": "\"{{title}}\" okuduklarım listesinden çıkarıldı.",
+      "searchResults_one": "\"{{term}}\" için {{count}} okunmuş kitap bulundu",
+      "searchResults_other": "\"{{term}}\" için {{count}} okunmuş kitap bulundu",
+      "noSearchResults": "\"{{term}}\" ile eşleşen okunmuş kitap bulunamadı."
+    },
+    "detail": {
+      "edit": "Düzenle",
+      "editTitle": "Kitabı Düzenle",
+      "viewMore": "...Devamını oku",
+      "hide": "Gizle"
+    }
+  },
+  "googleBooks": {
+    "title": "Google Books'ta ara",
+    "subtitle": "Kitap adı, yazar veya ISBN ile arayın; seçtiğiniz kitabın bilgileri forma aktarılır.",
+    "mode": "Arama türü",
+    "modes": {
+      "text": "Kitap adı / yazar",
+      "isbn": "ISBN"
+    },
+    "textLabel": "Kitap adı veya yazar",
+    "isbnLabel": "ISBN (10 veya 13 haneli)",
+    "search": "Ara",
+    "noResults": "Sonuç bulunamadı. Farklı bir arama deneyin veya bilgileri elle girin.",
+    "select": "Seç",
+    "unknownAuthor": "Yazar bilinmiyor",
+    "pages_one": "{{count}} sayfa",
+    "pages_other": "{{count}} sayfa",
+    "filled": "Kitap bilgileri forma aktarıldı. Kontrol edip kaydedin.",
+    "missingFields": "Bazı bilgiler Google Books'ta yok. Eksik alanları doldurun.",
+    "validation": {
+      "required": "Aramak için bir şey yazın."
+    }
+  },
+  "profile": {
+    "userInfo": "Kullanıcı bilgileri",
+    "edit": "Düzenle",
+    "editTitle": "Profili Düzenle",
+    "stats": {
+      "title": "Kitaplarım",
+      "total": "Toplam kitap",
+      "completed": "Okunan",
+      "reading": "Okunuyor",
+      "toRead": "Okunacak"
+    },
+    "reading": {
+      "title": "Okuma İstatistikleri",
+      "period": "Dönem",
+      "periods": {
+        "1m": "Son 1 ay",
+        "6m": "Son 6 ay",
+        "1y": "Son 1 yıl"
+      },
+      "completedBooks": "Tamamlanan kitap",
+      "pagesRead": "Okunan sayfa",
+      "averageLength": "Ortalama kitap uzunluğu",
+      "pagesUnit": "sayfa",
+      "byAuthor": "Yazarlara göre tamamlanan kitaplar",
+      "noBooks": "Bu dönemde tamamlanan kitap yok.",
+      "bookCount_one": "{{count}} kitap",
+      "bookCount_other": "{{count}} kitap"
+    },
+    "account": {
+      "profileTitle": "Profil bilgileri",
+      "imageUrl": "Profil görseli (URL)",
+      "imageHint": "Görsel bağlantısı boş bırakılırsa adınızın baş harfleri gösterilir. E-posta adresi değiştirilemez.",
+      "save": "Kaydet",
+      "saved": "Profil bilgileriniz güncellendi."
+    },
+    "password": {
+      "title": "Şifre değiştir",
+      "description": "Şifreniz değişince diğer cihazlardaki oturumlar kapatılır.",
+      "current": "Mevcut şifre",
+      "new": "Yeni şifre",
+      "confirm": "Yeni şifre (tekrar)",
+      "submit": "Şifreyi değiştir",
+      "changed": "Şifreniz değiştirildi."
+    },
+    "validation": {
+      "imageUrl": "Geçerli bir http(s) bağlantısı girin."
+    }
+  },
+  "readingGoals": {
+    "sectionTitle": "Okuma Hedefleri",
+    "add": "Hedef ekle",
+    "title": "{{start}} – {{end}}: {{amount}}",
+    "books_one": "{{formatted}} kitap",
+    "books_other": "{{formatted}} kitap",
+    "pages_one": "{{formatted}} sayfa",
+    "pages_other": "{{formatted}} sayfa",
+    "types": {
+      "BOOK_COUNT": "Kitap sayısı",
+      "PAGE_COUNT": "Sayfa sayısı"
+    },
+    "fields": {
+      "type": "Hedef türü",
+      "target": "Hedef",
+      "startDate": "Başlangıç tarihi",
+      "endDate": "Bitiş tarihi"
+    },
+    "newTitle": "Yeni okuma hedefi",
+    "editTitle": "Okuma hedefini düzenle",
+    "formDescription": "İlerleme, bu tarih aralığında bitirdiğiniz kitaplardan (sayfa hedefinde okunmakta olan kitapların sayfaları da dahil) hesaplanır.",
+    "save": "Kaydet",
+    "created": "Okuma hedefi eklendi.",
+    "updated": "Okuma hedefi güncellendi.",
+    "deleted": "Okuma hedefi silindi.",
+    "edit": "{{title}} hedefini düzenle",
+    "reached": "Hedefe ulaşıldı",
+    "progressLabel": "{{title}} ilerlemesi",
+    "delete": {
+      "button": "{{title}} hedefini sil",
+      "title": "Hedef silinsin mi?",
+      "description": "\"{{title}}\" hedefi kalıcı olarak silinecek. Kitaplarınız etkilenmez.",
+      "confirm": "Sil"
+    },
+    "empty": {
+      "title": "Henüz okuma hedefiniz yok.",
+      "description": "Örneğin bu yıl 30 kitap ya da 10.000 sayfa okumak için bir hedef ekleyin."
+    },
+    "validation": {
+      "target": "1 ile 1.000.000 arasında bir tam sayı girin.",
+      "date": "Tarih seçin.",
+      "endAfterStart": "Bitiş tarihi başlangıç tarihinden sonra olmalıdır."
+    }
+  },
+  "nav": {
+    "label": "Ana menü",
+    "home": "Ana Sayfa",
+    "readBooks": "Okuduğum Kitaplar",
+    "profile": "Profil",
+    "userMenu": "Kullanıcı menüsü",
+    "searchPlaceholder": "Kitap adı veya yazar ara..."
+  },
+  "errors": {
+    "default": "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.",
+    "NETWORK_ERROR": "Sunucuya ulaşılamıyor. İnternet bağlantınızı kontrol edin.",
+    "VALIDATION_ERROR": "Lütfen formdaki hataları düzeltin.",
+    "UNAUTHORIZED": "Bu işlem için giriş yapmanız gerekiyor.",
+    "FORBIDDEN": "Bu işlem için yetkiniz yok.",
+    "NOT_FOUND": "Aradığınız kayıt bulunamadı.",
+    "METHOD_NOT_ALLOWED": "Bu işlem desteklenmiyor.",
+    "RATE_LIMITED": "Çok fazla istek gönderdiniz. Lütfen biraz bekleyin.",
+    "INTERNAL_ERROR": "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.",
+    "INVALID_CREDENTIALS": "E-posta veya şifre hatalı.",
+    "EMAIL_ALREADY_EXISTS": "Bu e-posta adresiyle kayıtlı bir hesap zaten var.",
+    "VERIFICATION_CODE_INVALID": "Kod hatalı. Lütfen tekrar deneyin.",
+    "VERIFICATION_CODE_EXPIRED": "Kodun süresi doldu. Yeni bir kod isteyin.",
+    "VERIFICATION_ATTEMPTS_EXCEEDED": "Çok fazla hatalı deneme yaptınız. Yeni bir kod isteyin.",
+    "INVALID_REFRESH_TOKEN": "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.",
+    "INVALID_RESET_TOKEN": "Şifre sıfırlama oturumunun süresi doldu. Lütfen baştan başlayın.",
+    "INVALID_CURRENT_PASSWORD": "Mevcut şifreniz hatalı.",
+    "PASSWORD_SAME_AS_CURRENT": "Yeni şifreniz mevcut şifrenizden farklı olmalıdır.",
+    "BOOK_NOT_FOUND": "Kitap bulunamadı.",
+    "BOOK_ISBN_EXISTS": "Bu ISBN'e sahip bir kitap zaten kitaplığınızda var.",
+    "READING_GOAL_NOT_FOUND": "Okuma hedefi bulunamadı.",
+    "GOOGLE_BOOKS_UNAVAILABLE": "Google Books'a şu anda ulaşılamıyor. Biraz sonra tekrar deneyin veya bilgileri elle girin."
+  }
+}

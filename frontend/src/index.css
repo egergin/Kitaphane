@@ -1,0 +1,98 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/quicksand";
+
+/*
+ * Theme tokens (shadcn/ui variable contract), taken from the Penpot design
+ * "Book Reading Website - BookOnline (Community)".
+ *
+ * Penpot palette:
+ *   #181821  text / dark strokes          #F1EEE3  app background (BG 1)
+ *   #FFFFFF  surfaces (BG 2)              #009FFF  primary / links
+ *   #39B5FF  primary hover                #8E8E93  secondary text (Gray)
+ *   #C9C9C9  light borders                #FF6D6D  destructive / active nav
+ *   #0000FF  reading progress             #EBFFEE  progress track
+ *   #FBBC05  rating / warning             #34C759  success
+ * Font: Quicksand. Corner radius: 10px.
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 10px;
+
+  --background: #f1eee3;
+  --foreground: #181821;
+  --card: #ffffff;
+  --card-foreground: #181821;
+  --popover: #ffffff;
+  --popover-foreground: #181821;
+  --primary: #009fff;
+  --primary-hover: #39b5ff;
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: #181821;
+  --muted: #e8e4d6;
+  --muted-foreground: #8e8e93;
+  --accent: #e8e4d6;
+  --accent-foreground: #181821;
+  --destructive: #ff6d6d;
+  --border: #c9c9c9;
+  --input: #181821;
+  --ring: #009fff;
+
+  --progress: #0000ff;
+  --progress-track: #ebffee;
+  --rating: #fbbc05;
+  --success: #34c759;
+}
+
+@theme inline {
+  --font-sans: "Quicksand Variable", ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) * 2);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-progress: var(--progress);
+  --color-progress-track: var(--progress-track);
+  --color-rating: var(--rating);
+  --color-success: var(--success);
+}
+
+/*
+ * App screens (sidebar + header) are rendered at 125% of the browser's base size, which is how the
+ * design reads best. Everything there is sized in rem, so this scales text, spacing, icons and
+ * breakpoints together, like browser zoom. Auth screens keep the Penpot pixel sizes (100%).
+ */
+html.app-scale {
+  font-size: 125%;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans font-medium antialiased;
+  }
+}

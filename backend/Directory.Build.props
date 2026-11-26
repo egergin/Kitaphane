@@ -1,0 +1,12 @@
+<Project>
+  <!--
+    Inside the development container the source folder is bind-mounted from the host.
+    Keep container build output out of the shared bin/obj folders so host and container builds do not clash.
+  -->
+  <PropertyGroup Condition="'$(DOTNET_RUNNING_IN_CONTAINER)' == 'true'">
+    <BaseIntermediateOutputPath>/build/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+    <BaseOutputPath>/build/bin/$(MSBuildProjectName)/</BaseOutputPath>
+    <!-- Host build output in the mounted folder must not be compiled into the container build. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin/**;obj/**</DefaultItemExcludes>
+  </PropertyGroup>
+</Project>

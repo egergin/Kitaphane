@@ -28,7 +28,12 @@ const HOP_BY_HOP_HEADERS = ['connection', 'keep-alive', 'proxy-authorization', '
 
 export async function proxyToBackend(request: Request, env: Env): Promise<Response> {
   if (!env.BACKEND_URL || !env.PROXY_SHARED_SECRET) {
-    return Response.json({ message: 'The API proxy is not configured.', code: 'INTERNAL_ERROR' }, { status: 500 })
+    // Only the names of the missing settings are reported, never their values.
+    const missing = (['BACKEND_URL', 'PROXY_SHARED_SECRET'] as const).filter((name) => !env[name])
+    return Response.json(
+      { message: `The API proxy is not configured (missing: ${missing.join(', ')}).`, code: 'INTERNAL_ERROR' },
+      { status: 500 },
+    )
   }
 
   const incoming = new URL(request.url)

@@ -94,12 +94,24 @@ public static class DependencyInjection
         services.AddOptions<EmailOptions>()
             .Configure<IConfiguration>(EmailOptions.Bind)
             .Validate(
-                options => options.UsesResendApi || !string.IsNullOrWhiteSpace(options.Host),
-                "Either RESEND_API_KEY or SMTP_HOST must be configured.")
-            .Validate(options => !string.IsNullOrWhiteSpace(options.FromEmail), "SMTP_FROM_EMAIL is not configured.")
+                options => options.UsesAppsScript || options.UsesResendApi || !string.IsNullOrWhiteSpace(options.Host),
+                "One of APPS_SCRIPT_EMAIL_URL, RESEND_API_KEY or SMTP_HOST must be configured.")
+            .Validate(
+                options => !options.UsesAppsScript
+                    || (Uri.TryCreate(options.AppsScriptUrl, UriKind.Absolute, out var url) && url.Scheme == Uri.UriSchemeHttps),
+                "APPS_SCRIPT_EMAIL_URL must be an https URL.")
+            .Validate(
+                options => !options.UsesAppsScript || (options.AppsScriptSecret?.Length ?? 0) >= AppsScriptEmailSender.MinimumSecretLength,
+                $"APPS_SCRIPT_EMAIL_SECRET must be at least {AppsScriptEmailSender.MinimumSecretLength} characters.")
+            // With Apps Script the sender address is the Gmail account the script runs as.
+            .Validate(
+                options => options.UsesAppsScript || !string.IsNullOrWhiteSpace(options.FromEmail),
+                "SMTP_FROM_EMAIL is not configured.")
             .ValidateOnStart();
 
-        // RESEND_API_KEY → Resend HTTPS API (production), otherwise SMTP (local Mailpit).
+        // APPS_SCRIPT_EMAIL_URL → Gmail via Apps Script, RESEND_API_KEY → Resend (both HTTPS, production),
+        // otherwise SMTP (local Mailpit).
+        services.AddHttpClient<AppsScriptEmailSender>(client => client.Timeout = TimeSpan.FromSeconds(30));
         services.AddHttpClient<ResendEmailSender>(client =>
         {
             client.BaseAddress = new Uri(ResendEmailSender.BaseAddress);
@@ -107,9 +119,12 @@ public static class DependencyInjection
         });
         services.AddScoped<SmtpEmailSender>();
         services.AddScoped<IEmailSender>(serviceProvider =>
-            serviceProvider.GetRequiredService<IOptions<EmailOptions>>().Value.UsesResendApi
-                ? serviceProvider.GetRequiredService<ResendEmailSender>()
-                : serviceProvider.GetRequiredService<SmtpEmailSender>());
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<EmailOptions>>().Value;
+            if (options.UsesAppsScript) return serviceProvider.GetRequiredService<AppsScriptEmailSender>();
+            if (options.UsesResendApi) return serviceProvider.GetRequiredService<ResendEmailSender>();
+            return serviceProvider.GetRequiredService<SmtpEmailSender>();
+        });
     }
 
     private static void AddGoogleBooks(IServiceCollection services)

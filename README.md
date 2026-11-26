@@ -18,7 +18,7 @@ Kitaphane, okuduğunuz, okumakta olduğunuz ve okumak istediğiniz kitapları ki
 - **Backend:** .NET 10, ASP.NET Core Web API, EF Core + Npgsql, ASP.NET Core Identity, FluentValidation, OpenAPI/Swagger
 - **Frontend:** React, TypeScript, Vite, Tailwind CSS + shadcn/ui, React Router, TanStack Query, react-hook-form + zod, i18next
 - **Veritabanı:** PostgreSQL
-- **E-posta:** local: Mailpit (SMTP), production: Resend HTTPS API
+- **E-posta:** local: Mailpit (SMTP), production: Google Apps Script üzerinden Gmail (HTTPS)
 - **Altyapı:** Docker, Docker Compose
 
 ## Gereksinimler
@@ -58,7 +58,8 @@ cp .env.example .env
 | `AUTH_RATE_LIMIT_PER_MINUTE` | `/api/auth` için IP başına dakikalık istek sınırı (varsayılan 20) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | SMTP bilgileri |
 | `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME` | Gönderen adresi ve adı |
-| `RESEND_API_KEY` | Production: tanımlıysa e-posta SMTP yerine Resend HTTPS API ile gönderilir |
+| `APPS_SCRIPT_EMAIL_URL`, `APPS_SCRIPT_EMAIL_SECRET` | Production: tanımlıysa e-posta Apps Script web uygulamasıyla Gmail'den gönderilir (`deploy/apps-script/Code.gs`) |
+| `RESEND_API_KEY` | Alternatif: tanımlıysa e-posta SMTP yerine Resend HTTPS API ile gönderilir |
 | `FRONTEND_URL` | Frontend adresi |
 | `CORS_ORIGINS` | İzin verilen origin'ler (virgülle ayrılmış) |
 
@@ -165,7 +166,7 @@ Hata formatı ve endpoint'ler: [docs/api/api-design.md](docs/api/api-design.md).
 
 ## Production Deploy
 
-Frontend Cloudflare Workers'ta (statik dosyalar + proxy, `frontend/wrangler.jsonc`), backend Render'da (Frankfurt, Docker), veritabanı Neon'da (Frankfurt), e-posta Resend SMTP ile çalışır. Tarayıcı yalnızca Worker adresiyle konuşur; `/api/*` istekleri Worker kodu (`frontend/worker`) ile Render'a iletilir. Her iki servis de GitHub reposundan otomatik deploy edilir.
+Frontend Cloudflare Workers'ta (statik dosyalar + proxy, `frontend/wrangler.jsonc`), backend Render'da (Frankfurt, Docker), veritabanı Neon'da (Frankfurt), e-posta uygulamaya ait bir Gmail hesabından Google Apps Script ile gönderilir. Tarayıcı yalnızca Worker adresiyle konuşur; `/api/*` istekleri Worker kodu (`frontend/worker`) ile Render'a iletilir. Her iki servis de GitHub reposundan otomatik deploy edilir.
 
 - `backend/Dockerfile`: Render production imajı. `Dockerfile.dev` dosyaları yalnızca `docker compose` içindir.
 - Adım adım kurulum, secret'lar ve güncelleme: [docs/deployment/deployment.md](docs/deployment/deployment.md).

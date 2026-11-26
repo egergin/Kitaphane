@@ -391,7 +391,7 @@ MVP'de aylık okuma grafiği bulunmayacaktır.
 ### Email
 
 - SMTP
-- Production: Resend (HTTPS API; Render ücretsiz planı SMTP portlarını engeller)
+- Production: Google Apps Script üzerinden uygulamaya ait Gmail hesabı (HTTPS; Render ücretsiz planı SMTP portlarını engeller, alan adı yok). Alternatif: Resend HTTPS API
 - Local development: Mailpit
 
 ### Validation

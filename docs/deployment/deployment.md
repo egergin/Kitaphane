@@ -9,14 +9,15 @@ Tarayıcı ──> Cloudflare Worker (kitaphane.<hesap>.workers.dev)
                                │  + X-Kitaphane-Proxy-Secret, X-Kitaphane-Client-IP
                                ▼
                  Render Web Service (Frankfurt, Docker) ── ASP.NET Core API
-                               │                     └── HTTPS ─> Resend API
+                               │                     └── HTTPS ─> Google Apps Script ─> Gmail
                                ▼
                  Neon PostgreSQL (aws-eu-central-1, Frankfurt)
 ```
 
 Kararlar (2026-11-26):
 
-- **E-posta Resend HTTPS API ile:** Render ücretsiz web servislerinde giden SMTP portlarını (25, 465, 587) engeller; SMTP bağlantısı zaman aşımına düşer. Bu yüzden production'da `RESEND_API_KEY` tanımlıdır ve e-posta `https://api.resend.com` üzerinden (443) gönderilir. Gönderim başarısız olursa API 503 `EMAIL_DELIVERY_FAILED` döner ve kod tekrar gönderme beklemesi sıfırlanır.
+- **E-posta HTTPS üzerinden:** Render ücretsiz web servislerinde giden SMTP portlarını (25, 465, 587) engeller; SMTP bağlantısı zaman aşımına düşer. Bu yüzden production'da e-posta 443 üzerinden gönderilir. Gönderim başarısız olursa API 503 `EMAIL_DELIVERY_FAILED` döner ve kod tekrar gönderme beklemesi sıfırlanır.
+- **E-posta uygulamaya ait bir Gmail hesabından (Google Apps Script):** Alan adı olmadan Resend yalnızca hesap sahibine gönderebilir; Brevo gibi servisler de ücretsiz adresleri (ör. `@proton.me`, DMARC `p=quarantine`) gönderici olarak kabul etmez. Bu yüzden uygulamaya ayrılmış bir Gmail hesabında küçük bir Apps Script web uygulaması (`deploy/apps-script/Code.gs`) çalışır; backend onu `APPS_SCRIPT_EMAIL_URL` + `APPS_SCRIPT_EMAIL_SECRET` ile çağırır ve e-posta o Gmail hesabından "Kitaphane" gönderen adıyla gider (Google'ın SPF/DKIM imzasıyla). Sınır: kişisel Gmail hesabında günde yaklaşık 100 alıcı. Alan adı alınınca Resend'e geçilebilir (§7).
 - **Backend Render'ın ücretsiz planında:** Kart bilgisi gerektirmez. Ücretsiz servis 15 dakika istek almazsa uyur; uyuyan servise gelen ilk istek, servis yeniden başlayana kadar 30–60 saniye bekler. Neon da boşta kalan veritabanını uyutur (ilk bağlantı birkaç saniye sürer; API bağlantı hatalarında 3 kez yeniden dener).
 - **Frontend Cloudflare Workers'ta:** Önce Cloudflare Pages denendi; ancak Türkiye'deki bazı internet sağlayıcıları `*.pages.dev` adreslerini engelliyor (bağlantı zaman aşımı), `*.workers.dev` ise erişilebilir. Bu yüzden React uygulaması ve proxy tek bir Worker'da çalışır (`frontend/wrangler.jsonc`).
 - **Tek origin:** Tarayıcı yalnızca Worker adresiyle konuşur; `/api/*` istekleri Worker kodu ile Render'a iletilir. Bu sayede CORS gerekmez ve `SameSite=Strict` refresh token çerezi değişmeden çalışır (`*.workers.dev` ile `*.onrender.com` farklı siteler olduğu için doğrudan çağrıda çerez gönderilmezdi).
@@ -24,15 +25,15 @@ Kararlar (2026-11-26):
 - **HTTPS:** Render TLS'i sonlandırır ve `X-Forwarded-Proto` gönderir; API bu başlığa güvenir (`UseForwardedHeaders`). İmaj, Render'ın verdiği `PORT`'u dinler (yoksa 8080).
 - **Migration'lar ayrı adımdır:** API production'da migration çalıştırmaz; idempotent SQL betiği her sürümde Neon'a uygulanır.
 - **Otomatik deploy:** Kod özel bir GitHub reposundadır; Render ve Cloudflare Workers (Workers Builds) bu repoya bağlıdır ve `main` dalına her push'ta otomatik deploy eder.
-- **Alan adı yok:** Frontend `kitaphane.<hesap>.workers.dev` adresindedir. Resend doğrulanmış alan adı olmadan yalnızca Resend hesabının e-posta adresine gönderim yapabilir; gerçek kullanıcılar kayıt/şifre kodu alabilsin diye bir alan adı bağlanıp Resend'de doğrulanmalıdır (bkz. §7).
+- **Alan adı yok:** Frontend `kitaphane.<hesap>.workers.dev` adresindedir; `workers.dev` alan adının DNS'i Cloudflare'e ait olduğu için e-posta göndericisi olarak doğrulanamaz.
 
 Komutlar repo kök dizininden çalıştırılır. `<...>` ile gösterilen değerleri kendi değerlerinle değiştir.
 
 ## 0. Ön koşullar
 
-- Hesaplar: GitHub, Render, Cloudflare, Neon, Resend.
+- Hesaplar: GitHub, Render, Cloudflare, Neon ve e-posta için uygulamaya ayrılmış bir Gmail hesabı.
 - Yerelde gereken araçlar: Docker (migration için `psql`), .NET 10 SDK + `dotnet-ef` (`dotnet tool install --global dotnet-ef`).
-- Gizli değerler repo kökündeki geçici dosyalarda tutulur ve panellere dosyadan aktarılır (hepsi `.gitignore`'da): `neon-url.txt`, `db-connection.txt`, `resend-api-key.txt`, `google-books-key.txt`, `jwt-secret.txt`, `proxy-secret.txt`, `render.env`. Dosyalarda sonda satır sonu olmamalıdır (değerin parçası sayılır).
+- Gizli değerler repo kökündeki geçici dosyalarda tutulur ve panellere dosyadan aktarılır (hepsi `.gitignore`'da): `neon-url.txt`, `db-connection.txt`, `apps-script-url.txt`, `apps-script-secret.txt`, `google-books-key.txt`, `jwt-secret.txt`, `proxy-secret.txt`, `render.env`. Dosyalarda sonda satır sonu olmamalıdır (değerin parçası sayılır).
 
 ## 1. Neon (veritabanı)
 
@@ -60,10 +61,25 @@ docker run --rm -i -e DATABASE_URL="$(cat neon-url.txt)" postgres:17-alpine \
   sh -c 'psql "$DATABASE_URL" -v ON_ERROR_STOP=1' < migrate.sql
 ```
 
-## 3. Resend (e-posta)
+## 3. E-posta (Gmail + Google Apps Script)
 
-1. Resend'de API anahtarı oluştur (izin: *Sending access*); repo kökünde `resend-api-key.txt` dosyasına kaydet. Backend bu anahtarı `RESEND_API_KEY` olarak kullanır (HTTPS API).
-2. Alan adı yokken gönderen adres `onboarding@resend.dev` olmalıdır ve e-postalar yalnızca Resend hesabının e-posta adresine gider; diğer adresler için API 503 `EMAIL_DELIVERY_FAILED` döner.
+E-postalar uygulamaya ayrılmış bir Gmail hesabından gönderilir (kişisel ana hesabın kullanılmaz). Alıcı gönderen olarak "Kitaphane" adını görür; adres bu Gmail hesabıdır ve gönderilen e-postalar hesabın *Gönderilenler* klasöründe birikir.
+
+Önce betiğin gizli anahtarını üret (Render'a da aynı değer verilir):
+
+```bash
+openssl rand -hex 32 | tr -d '\n' > apps-script-secret.txt
+```
+
+1. Uygulamanın Gmail hesabıyla [script.google.com](https://script.google.com)'da oturum aç → *New project*; adı `Kitaphane e-posta` yap.
+2. `Code.gs` dosyasının içeriğini sil ve repodaki `deploy/apps-script/Code.gs` içeriğini yapıştır; kaydet.
+3. Sol menüde *Project Settings* (dişli) → *Script Properties* → *Add script property*: Property `SECRET`, Value `apps-script-secret.txt` içeriği → *Save script properties*.
+4. Editöre dön, üstteki fonksiyon listesinden `authorize`'ı seçip *Run*'a bas. Google izin ister: hesabı seç → "Google hasn't verified this app" ekranında *Advanced → Go to Kitaphane e-posta (unsafe)* → *Allow* (betik senin; "e-postayı senin adına gönder" izni istenir). Execution log'da kalan günlük kota görünür.
+5. *Deploy → New deployment* → tür (dişli) **Web app**; *Execute as* **Me**, *Who has access* **Anyone** → *Deploy*. Çıkan *Web app URL*'yi (`https://script.google.com/macros/s/.../exec`) repo kökünde `apps-script-url.txt` dosyasına kaydet.
+
+"Anyone" erişimine rağmen betik yalnızca doğru `SECRET` ile gelen isteklerde ve tek bir alıcıya e-posta gönderir. Betik kodu değişirse: *Deploy → Manage deployments* → kalem → *Version: New version* → *Deploy* (URL değişmez).
+
+Alternatif: Alan adın varsa Resend kullanılabilir (`RESEND_API_KEY`; §7). İki ayar birlikte tanımlıysa Apps Script kullanılır.
 
 ## 4. Render (backend)
 
@@ -83,12 +99,12 @@ JWT_AUDIENCE=kitaphane-web
 JWT_ACCESS_TOKEN_MINUTES=60
 JWT_REFRESH_TOKEN_DAYS=7
 AUTH_RATE_LIMIT_PER_MINUTE=20
-SMTP_FROM_EMAIL=onboarding@resend.dev
 SMTP_FROM_NAME=Kitaphane
 DATABASE_CONNECTION_STRING=$(cat db-connection.txt)
 JWT_SECRET=$(cat jwt-secret.txt)
 PROXY_SHARED_SECRET=$(cat proxy-secret.txt)
-RESEND_API_KEY=$(cat resend-api-key.txt)
+APPS_SCRIPT_EMAIL_URL=$(cat apps-script-url.txt)
+APPS_SCRIPT_EMAIL_SECRET=$(cat apps-script-secret.txt)
 GOOGLE_BOOKS_API_KEY=$(cat google-books-key.txt)
 EOF
 ```
@@ -128,13 +144,13 @@ Cloudflare panelinde *Workers & Pages → Create → Workers → Import a reposi
 Kurulum bitince geçici dosyaları sil:
 
 ```bash
-rm -f neon-url.txt resend-api-key.txt google-books-key.txt db-connection.txt jwt-secret.txt proxy-secret.txt render.env migrate.sql
+rm -f neon-url.txt apps-script-url.txt apps-script-secret.txt google-books-key.txt db-connection.txt jwt-secret.txt proxy-secret.txt render.env migrate.sql
 ```
 
 ## 6. Kontrol listesi
 
 - `https://kitaphane.<hesap>.workers.dev` açılıyor, `/api/health` 200 dönüyor (backend uyuyorsa ilk istek gecikir).
-- Resend hesabının e-posta adresiyle kayıt ol: doğrulama kodu gelir, hesap açılır.
+- Herhangi bir e-posta adresiyle kayıt ol: "Kitaphane" gönderen adıyla doğrulama kodu gelir, hesap açılır. Gelmezse Render loglarında `Apps Script did not send the email` satırındaki hata koduna bak (`UNAUTHORIZED`: `SECRET` ile `APPS_SCRIPT_EMAIL_SECRET` farklı; `unexpected response`: web app erişimi "Anyone" değil).
 - Sayfayı yenile: oturum korunur (refresh token çerezi çalışıyor).
 - Kitap ekle, Google Books araması yap, profil istatistiklerini aç.
 
@@ -152,4 +168,4 @@ Uyku gecikmesi: Ücretsiz servis 15 dakika boşta kalınca uyur. İstenirse bir 
 Alan adı bağlanınca:
 
 - Cloudflare'de Worker'a *Settings → Domains & Routes → Add → Custom domain* ile alan adını ekle.
-- Resend → Domains'te alan adını ekleyip DNS kayıtlarını (SPF, DKIM) gir; doğrulanınca Render'da `SMTP_FROM_EMAIL`'i `no-reply@<alan-adı>` yap. Bundan sonra herkese e-posta gönderilebilir.
+- İstenirse e-postayı Resend'e taşı: Resend → Domains'te alan adını ekleyip DNS kayıtlarını (SPF, DKIM) gir; doğrulanınca Render'da `RESEND_API_KEY` ve `SMTP_FROM_EMAIL=no-reply@<alan-adı>` tanımla, `APPS_SCRIPT_EMAIL_URL` ve `APPS_SCRIPT_EMAIL_SECRET`'ı sil. Günlük gönderim sınırı Gmail'inkinden yüksektir.

@@ -16,7 +16,7 @@ Authentication ve authorization kontrolleri backend tarafında uygulanmalıdır.
 - ASP.NET Core Web API
 - JWT Bearer authentication (access token)
 - Refresh token (HttpOnly cookie)
-- E-posta gönderimi (production: Resend HTTPS API, local: Mailpit SMTP); gönderilemezse 503 `EMAIL_DELIVERY_FAILED`
+- E-posta gönderimi (production: Google Apps Script üzerinden Gmail, local: Mailpit SMTP); gönderilemezse 503 `EMAIL_DELIVERY_FAILED`
 
 Authentication mekanizması güvenli şekilde uygulanmalıdır.
 

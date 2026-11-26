@@ -22,7 +22,7 @@ ASP.NET Core Web API
         ├── Statistics
         ├── Reading Goals
         ├── Google Books Integration ──> Google Books API
-        └── Email ─────────────────────> Resend HTTPS API (prod) / Mailpit SMTP (local)
+        └── Email ─────────────────────> Apps Script → Gmail (prod, HTTPS) / Mailpit SMTP (local)
         |
         v
 Entity Framework Core
@@ -72,7 +72,7 @@ MVP olduğu için gereksiz abstraction ve katmanlardan kaçınılmalıdır.
 
 ## Email
 
-- E-posta (production: Resend HTTPS API, local: Mailpit SMTP)
+- E-posta (production: Google Apps Script üzerinden Gmail, HTTPS; local: Mailpit SMTP)
 
 ## Validation
 
@@ -165,7 +165,7 @@ Sorumluluklar:
 - Migrations
 - JWT / refresh token üretimi
 - Google Books HTTP client
-- E-posta gönderici (Resend HTTPS API / SMTP)
+- E-posta gönderici (Apps Script / Resend HTTPS API / SMTP)
 - External service implementations
 
 # 4. Backend Project Structure
@@ -207,7 +207,7 @@ backend/
 │       │   └── Migrations/
 │       ├── Identity/            (ApplicationUser, JWT/refresh token servisleri)
 │       ├── GoogleBooks/
-│       ├── Email/               (Resend API ve SMTP gönderici, e-posta şablonları)
+│       ├── Email/               (Apps Script, Resend API ve SMTP gönderici, e-posta şablonları)
 │       └── DependencyInjection.cs
 │
 ├── tests/
@@ -279,7 +279,7 @@ Google Books API key gerekiyorsa environment variable olarak saklanmalıdır.
 
 Google Books categories / subjects verileri kullanılmayacaktır.
 
-E-posta `RESEND_API_KEY` tanımlıysa Resend HTTPS API ile (production; Render'ın ücretsiz planı giden SMTP portlarını 25/465/587 engellediği için), değilse standart SMTP ile gönderilir (local development'ta Docker Compose içindeki Mailpit). Gönderim başarısız olursa API 503 `EMAIL_DELIVERY_FAILED` döner. Gönderilen e-postalar:
+Render'ın ücretsiz planı giden SMTP portlarını (25/465/587) engellediği için production'da e-posta HTTPS ile gönderilir. Gönderici sırasıyla seçilir: `APPS_SCRIPT_EMAIL_URL` tanımlıysa uygulamaya ait Gmail hesabındaki Google Apps Script web uygulaması (`deploy/apps-script/Code.gs`, gönderen adı "Kitaphane"; production), `RESEND_API_KEY` tanımlıysa Resend HTTPS API (alan adı alınırsa), değilse standart SMTP (local development'ta Docker Compose içindeki Mailpit). Gönderim başarısız olursa API 503 `EMAIL_DELIVERY_FAILED` döner. Gönderilen e-postalar:
 
 - Kayıt doğrulama kodu
 - Şifre sıfırlama kodu
@@ -320,7 +320,9 @@ SMTP_USERNAME=
 SMTP_PASSWORD=
 SMTP_FROM_EMAIL=
 SMTP_FROM_NAME=Kitaphane
-RESEND_API_KEY=          (production; tanımlıysa SMTP yerine Resend HTTPS API kullanılır)
+APPS_SCRIPT_EMAIL_URL=   (production; tanımlıysa e-posta Apps Script web uygulamasıyla Gmail'den gider)
+APPS_SCRIPT_EMAIL_SECRET= (en az 32 karakter; betiğin SECRET script property'si ile aynı)
+RESEND_API_KEY=          (alternatif; tanımlıysa SMTP yerine Resend HTTPS API kullanılır)
 
 FRONTEND_URL=
 CORS_ORIGINS=

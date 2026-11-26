@@ -2,8 +2,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace Kitaphane.Infrastructure.Email;
 
-public sealed class SmtpOptions
+/// <summary>
+/// Email settings. With <c>RESEND_API_KEY</c> email goes through the Resend HTTPS API (production:
+/// the host blocks outbound SMTP ports); otherwise over SMTP (local development: Mailpit).
+/// </summary>
+public sealed class EmailOptions
 {
+    public string? ResendApiKey { get; set; }
+
     public string Host { get; set; } = string.Empty;
 
     public int Port { get; set; } = 587;
@@ -16,8 +22,11 @@ public sealed class SmtpOptions
 
     public string FromName { get; set; } = "Kitaphane";
 
-    public static void Bind(SmtpOptions options, IConfiguration configuration)
+    public bool UsesResendApi => !string.IsNullOrWhiteSpace(ResendApiKey);
+
+    public static void Bind(EmailOptions options, IConfiguration configuration)
     {
+        options.ResendApiKey = configuration["RESEND_API_KEY"];
         options.Host = configuration["SMTP_HOST"] ?? string.Empty;
         options.Port = int.TryParse(configuration["SMTP_PORT"], out var port) ? port : options.Port;
         options.Username = configuration["SMTP_USERNAME"];

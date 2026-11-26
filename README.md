@@ -18,7 +18,7 @@ Kitaphane, okuduğunuz, okumakta olduğunuz ve okumak istediğiniz kitapları ki
 - **Backend:** .NET 10, ASP.NET Core Web API, EF Core + Npgsql, ASP.NET Core Identity, FluentValidation, OpenAPI/Swagger
 - **Frontend:** React, TypeScript, Vite, Tailwind CSS + shadcn/ui, React Router, TanStack Query, react-hook-form + zod, i18next
 - **Veritabanı:** PostgreSQL
-- **E-posta:** SMTP (local: Mailpit, production: Resend)
+- **E-posta:** local: Mailpit (SMTP), production: Resend HTTPS API
 - **Altyapı:** Docker, Docker Compose
 
 ## Gereksinimler
@@ -58,6 +58,7 @@ cp .env.example .env
 | `AUTH_RATE_LIMIT_PER_MINUTE` | `/api/auth` için IP başına dakikalık istek sınırı (varsayılan 20) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | SMTP bilgileri |
 | `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME` | Gönderen adresi ve adı |
+| `RESEND_API_KEY` | Production: tanımlıysa e-posta SMTP yerine Resend HTTPS API ile gönderilir |
 | `FRONTEND_URL` | Frontend adresi |
 | `CORS_ORIGINS` | İzin verilen origin'ler (virgülle ayrılmış) |
 

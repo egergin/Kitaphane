@@ -9,13 +9,14 @@ Tarayıcı ──> Cloudflare Worker (kitaphane.<hesap>.workers.dev)
                                │  + X-Kitaphane-Proxy-Secret, X-Kitaphane-Client-IP
                                ▼
                  Render Web Service (Frankfurt, Docker) ── ASP.NET Core API
-                               │                     └── SMTP ──> Resend
+                               │                     └── HTTPS ─> Resend API
                                ▼
                  Neon PostgreSQL (aws-eu-central-1, Frankfurt)
 ```
 
 Kararlar (2026-11-26):
 
+- **E-posta Resend HTTPS API ile:** Render ücretsiz web servislerinde giden SMTP portlarını (25, 465, 587) engeller; SMTP bağlantısı zaman aşımına düşer. Bu yüzden production'da `RESEND_API_KEY` tanımlıdır ve e-posta `https://api.resend.com` üzerinden (443) gönderilir. Gönderim başarısız olursa API 503 `EMAIL_DELIVERY_FAILED` döner ve kod tekrar gönderme beklemesi sıfırlanır.
 - **Backend Render'ın ücretsiz planında:** Kart bilgisi gerektirmez. Ücretsiz servis 15 dakika istek almazsa uyur; uyuyan servise gelen ilk istek, servis yeniden başlayana kadar 30–60 saniye bekler. Neon da boşta kalan veritabanını uyutur (ilk bağlantı birkaç saniye sürer; API bağlantı hatalarında 3 kez yeniden dener).
 - **Frontend Cloudflare Workers'ta:** Önce Cloudflare Pages denendi; ancak Türkiye'deki bazı internet sağlayıcıları `*.pages.dev` adreslerini engelliyor (bağlantı zaman aşımı), `*.workers.dev` ise erişilebilir. Bu yüzden React uygulaması ve proxy tek bir Worker'da çalışır (`frontend/wrangler.jsonc`).
 - **Tek origin:** Tarayıcı yalnızca Worker adresiyle konuşur; `/api/*` istekleri Worker kodu ile Render'a iletilir. Bu sayede CORS gerekmez ve `SameSite=Strict` refresh token çerezi değişmeden çalışır (`*.workers.dev` ile `*.onrender.com` farklı siteler olduğu için doğrudan çağrıda çerez gönderilmezdi).
@@ -61,9 +62,8 @@ docker run --rm -i -e DATABASE_URL="$(cat neon-url.txt)" postgres:17-alpine \
 
 ## 3. Resend (e-posta)
 
-1. Resend'de API anahtarı oluştur (izin: *Sending access*). Anahtar SMTP şifresidir; repo kökünde `resend-api-key.txt` dosyasına kaydet.
-2. Alan adı yokken gönderen adres `onboarding@resend.dev` olmalıdır ve e-postalar yalnızca Resend hesabının e-posta adresine gider.
-3. SMTP ayarları: `smtp.resend.com`, port `465` (TLS), kullanıcı adı `resend`.
+1. Resend'de API anahtarı oluştur (izin: *Sending access*); repo kökünde `resend-api-key.txt` dosyasına kaydet. Backend bu anahtarı `RESEND_API_KEY` olarak kullanır (HTTPS API).
+2. Alan adı yokken gönderen adres `onboarding@resend.dev` olmalıdır ve e-postalar yalnızca Resend hesabının e-posta adresine gider; diğer adresler için API 503 `EMAIL_DELIVERY_FAILED` döner.
 
 ## 4. Render (backend)
 
@@ -83,15 +83,12 @@ JWT_AUDIENCE=kitaphane-web
 JWT_ACCESS_TOKEN_MINUTES=60
 JWT_REFRESH_TOKEN_DAYS=7
 AUTH_RATE_LIMIT_PER_MINUTE=20
-SMTP_HOST=smtp.resend.com
-SMTP_PORT=465
-SMTP_USERNAME=resend
 SMTP_FROM_EMAIL=onboarding@resend.dev
 SMTP_FROM_NAME=Kitaphane
 DATABASE_CONNECTION_STRING=$(cat db-connection.txt)
 JWT_SECRET=$(cat jwt-secret.txt)
 PROXY_SHARED_SECRET=$(cat proxy-secret.txt)
-SMTP_PASSWORD=$(cat resend-api-key.txt)
+RESEND_API_KEY=$(cat resend-api-key.txt)
 GOOGLE_BOOKS_API_KEY=$(cat google-books-key.txt)
 EOF
 ```
@@ -102,7 +99,7 @@ EOF
 2. Name `kitaphane-api` (adres `https://kitaphane-api.onrender.com` olur; alınmışsa Render sonuna ek koyar), Language **Docker**, Branch `main`, Region **Frankfurt (EU Central)**.
 3. Root Directory **`backend`**, Dockerfile Path **`./Dockerfile`** (Docker build context `backend/` klasörüdür).
 4. Instance Type **Free**.
-5. *Environment Variables → Add from .env*: `render.env` dosyasının içeriğini yapıştır. Eklenen 15 değişkenin değerlerinin tam ve tırnaksız olduğunu kontrol et (özellikle `DATABASE_CONNECTION_STRING`).
+5. *Environment Variables → Add from .env*: `render.env` dosyasının içeriğini yapıştır. Eklenen 12 değişkenin değerlerinin tam ve tırnaksız olduğunu kontrol et (özellikle `DATABASE_CONNECTION_STRING`).
 6. *Advanced*: Health Check Path `/api/health`, Auto-Deploy **On Commit**.
 7. *Deploy Web Service*. İlk derleme birkaç dakika sürer; ilerlemesi servisin *Logs* / *Events* sayfasında görünür.
 

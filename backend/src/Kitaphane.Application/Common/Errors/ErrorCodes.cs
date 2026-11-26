@@ -24,6 +24,7 @@ public static class ErrorCodes
     public const string InvalidResetToken = "INVALID_RESET_TOKEN";
     public const string InvalidCurrentPassword = "INVALID_CURRENT_PASSWORD";
     public const string PasswordSameAsCurrent = "PASSWORD_SAME_AS_CURRENT";
+    public const string EmailDeliveryFailed = "EMAIL_DELIVERY_FAILED";
 
     // Books
     public const string BookNotFound = "BOOK_NOT_FOUND";

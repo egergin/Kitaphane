@@ -7,6 +7,7 @@ using Kitaphane.Infrastructure.Email;
 using Kitaphane.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Kitaphane.Infrastructure.Identity;
 
@@ -21,7 +22,8 @@ public sealed class AuthService(
     TokenService tokenService,
     SecretHasher hasher,
     IEmailSender emailSender,
-    TimeProvider timeProvider) : IAuthService
+    TimeProvider timeProvider,
+    ILogger<AuthService> logger) : IAuthService
 {
     private DateTime Now => timeProvider.GetUtcNow().UtcDateTime;
 
@@ -67,7 +69,10 @@ public sealed class AuthService(
 
         if (code is not null)
         {
-            await emailSender.SendAsync(EmailTemplates.VerificationCode(email, registration.Name, code), cancellationToken);
+            await SendCodeAsync(
+                EmailTemplates.VerificationCode(email, registration.Name, code),
+                () => registration.LastCodeSentAt = DateTime.UnixEpoch,
+                cancellationToken);
         }
     }
 
@@ -136,8 +141,10 @@ public sealed class AuthService(
         var code = IssueCode(registration, now);
         await db.SaveChangesAsync(cancellationToken);
 
-        await emailSender.SendAsync(
-            EmailTemplates.VerificationCode(registration.Email, registration.Name, code), cancellationToken);
+        await SendCodeAsync(
+            EmailTemplates.VerificationCode(registration.Email, registration.Name, code),
+            () => registration.LastCodeSentAt = DateTime.UnixEpoch,
+            cancellationToken);
     }
 
     // ---------------------------------------------------------------- Sign-in and tokens
@@ -232,7 +239,19 @@ public sealed class AuthService(
 
         await db.SaveChangesAsync(cancellationToken);
 
-        await emailSender.SendAsync(EmailTemplates.PasswordResetCode(user.Email!, user.Name, code), cancellationToken);
+        try
+        {
+            await SendCodeAsync(
+                EmailTemplates.PasswordResetCode(user.Email!, user.Name, code),
+                () => reset.LastCodeSentAt = DateTime.UnixEpoch,
+                cancellationToken);
+        }
+        catch (ServiceUnavailableException)
+        {
+            // Not reported to the caller: an error only for existing accounts would reveal which emails
+            // are registered. The failure is logged and the user can ask again right away.
+            logger.LogWarning("Password reset code could not be emailed; the request was answered as usual.");
+        }
     }
 
     public async Task<VerifyResetCodeResponse> VerifyResetCodeAsync(
@@ -384,6 +403,24 @@ public sealed class AuthService(
 
     private static bool CanSendCode(DateTime lastSentAt, DateTime now) =>
         now - lastSentAt >= AuthRules.CodeResendCooldown;
+
+    /// <summary>
+    /// Emails a code. If delivery fails the resend cooldown is cleared (<paramref name="allowImmediateResend"/>)
+    /// so the user can retry at once instead of waiting for a code that never arrived; the error is rethrown.
+    /// </summary>
+    private async Task SendCodeAsync(EmailMessage message, Action allowImmediateResend, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await emailSender.SendAsync(message, cancellationToken);
+        }
+        catch (ServiceUnavailableException)
+        {
+            allowImmediateResend();
+            await db.SaveChangesAsync(CancellationToken.None);
+            throw;
+        }
+    }
 
     /// <summary>Checks attempts, expiry and the code itself; failed attempts are persisted before throwing.</summary>
     private async Task EnsureCodeMatchesAsync(

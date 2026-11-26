@@ -19,3 +19,5 @@ public sealed class NotFoundException(string code, string message) : AppExceptio
 public sealed class ConflictException(string code, string message) : AppException(code, message, 409);
 
 public sealed class BadGatewayException(string code, string message) : AppException(code, message, 502);
+
+public sealed class ServiceUnavailableException(string code, string message) : AppException(code, message, 503);

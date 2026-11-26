@@ -288,6 +288,7 @@
     "INVALID_RESET_TOKEN": "Şifre sıfırlama oturumunun süresi doldu. Lütfen baştan başlayın.",
     "INVALID_CURRENT_PASSWORD": "Mevcut şifreniz hatalı.",
     "PASSWORD_SAME_AS_CURRENT": "Yeni şifreniz mevcut şifrenizden farklı olmalıdır.",
+    "EMAIL_DELIVERY_FAILED": "Doğrulama e-postası şu anda gönderilemiyor. Lütfen biraz sonra tekrar deneyin.",
     "BOOK_NOT_FOUND": "Kitap bulunamadı.",
     "BOOK_ISBN_EXISTS": "Bu ISBN'e sahip bir kitap zaten kitaplığınızda var.",
     "READING_GOAL_NOT_FOUND": "Okuma hedefi bulunamadı.",

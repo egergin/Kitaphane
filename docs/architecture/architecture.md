@@ -22,7 +22,7 @@ ASP.NET Core Web API
         ├── Statistics
         ├── Reading Goals
         ├── Google Books Integration ──> Google Books API
-        └── Email (SMTP) ──────────────> Resend (prod) / Mailpit (local)
+        └── Email ─────────────────────> Resend HTTPS API (prod) / Mailpit SMTP (local)
         |
         v
 Entity Framework Core
@@ -72,7 +72,7 @@ MVP olduğu için gereksiz abstraction ve katmanlardan kaçınılmalıdır.
 
 ## Email
 
-- SMTP (production: Resend SMTP, local: Mailpit)
+- E-posta (production: Resend HTTPS API, local: Mailpit SMTP)
 
 ## Validation
 
@@ -165,7 +165,7 @@ Sorumluluklar:
 - Migrations
 - JWT / refresh token üretimi
 - Google Books HTTP client
-- SMTP email sender
+- E-posta gönderici (Resend HTTPS API / SMTP)
 - External service implementations
 
 # 4. Backend Project Structure
@@ -207,7 +207,7 @@ backend/
 │       │   └── Migrations/
 │       ├── Identity/            (ApplicationUser, JWT/refresh token servisleri)
 │       ├── GoogleBooks/
-│       ├── Email/               (SMTP sender, e-posta şablonları)
+│       ├── Email/               (Resend API ve SMTP gönderici, e-posta şablonları)
 │       └── DependencyInjection.cs
 │
 ├── tests/
@@ -279,7 +279,7 @@ Google Books API key gerekiyorsa environment variable olarak saklanmalıdır.
 
 Google Books categories / subjects verileri kullanılmayacaktır.
 
-E-posta gönderimi standart SMTP üzerinden yapılır; sağlayıcıya özel SDK kullanılmaz. Production'da Resend SMTP (`smtp.resend.com`), local development'ta Docker Compose içindeki Mailpit kullanılır. Gönderilen e-postalar:
+E-posta `RESEND_API_KEY` tanımlıysa Resend HTTPS API ile (production; Render'ın ücretsiz planı giden SMTP portlarını 25/465/587 engellediği için), değilse standart SMTP ile gönderilir (local development'ta Docker Compose içindeki Mailpit). Gönderim başarısız olursa API 503 `EMAIL_DELIVERY_FAILED` döner. Gönderilen e-postalar:
 
 - Kayıt doğrulama kodu
 - Şifre sıfırlama kodu
@@ -320,6 +320,7 @@ SMTP_USERNAME=
 SMTP_PASSWORD=
 SMTP_FROM_EMAIL=
 SMTP_FROM_NAME=Kitaphane
+RESEND_API_KEY=          (production; tanımlıysa SMTP yerine Resend HTTPS API kullanılır)
 
 FRONTEND_URL=
 CORS_ORIGINS=

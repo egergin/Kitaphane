@@ -636,6 +636,7 @@ INVALID_REFRESH_TOKEN
 INVALID_RESET_TOKEN
 INVALID_CURRENT_PASSWORD
 PASSWORD_SAME_AS_CURRENT
+EMAIL_DELIVERY_FAILED
 BOOK_NOT_FOUND
 BOOK_ISBN_EXISTS
 TAG_NOT_FOUND
@@ -661,6 +662,7 @@ Kullanılan HTTP status code'ları:
 - 429 Too Many Requests
 - 500 Internal Server Error
 - 502 Bad Gateway (Google Books erişilemezse)
+- 503 Service Unavailable (`EMAIL_DELIVERY_FAILED`: kayıt veya doğrulama kodu e-postası gönderilemedi; bekleme süresi sıfırlanır, kullanıcı hemen tekrar deneyebilir. `forgot-password` hesap varlığını açığa vurmamak için bu durumda da 202 döner)
 
 422 kullanılmaz.
 

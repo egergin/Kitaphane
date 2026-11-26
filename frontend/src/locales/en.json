@@ -288,6 +288,7 @@
     "INVALID_RESET_TOKEN": "The password reset session has expired. Please start again.",
     "INVALID_CURRENT_PASSWORD": "Your current password is incorrect.",
     "PASSWORD_SAME_AS_CURRENT": "Your new password must be different from your current password.",
+    "EMAIL_DELIVERY_FAILED": "The verification email cannot be sent right now. Please try again in a little while.",
     "BOOK_NOT_FOUND": "Book not found.",
     "BOOK_ISBN_EXISTS": "A book with this ISBN is already on your shelf.",
     "READING_GOAL_NOT_FOUND": "Reading goal not found.",

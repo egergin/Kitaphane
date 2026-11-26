@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Kitaphane.Infrastructure;
 
@@ -90,13 +91,25 @@ public static class DependencyInjection
 
     private static void AddEmail(IServiceCollection services)
     {
-        services.AddOptions<SmtpOptions>()
-            .Configure<IConfiguration>(SmtpOptions.Bind)
-            .Validate(options => !string.IsNullOrWhiteSpace(options.Host), "SMTP_HOST is not configured.")
+        services.AddOptions<EmailOptions>()
+            .Configure<IConfiguration>(EmailOptions.Bind)
+            .Validate(
+                options => options.UsesResendApi || !string.IsNullOrWhiteSpace(options.Host),
+                "Either RESEND_API_KEY or SMTP_HOST must be configured.")
             .Validate(options => !string.IsNullOrWhiteSpace(options.FromEmail), "SMTP_FROM_EMAIL is not configured.")
             .ValidateOnStart();
 
-        services.AddScoped<IEmailSender, SmtpEmailSender>();
+        // RESEND_API_KEY → Resend HTTPS API (production), otherwise SMTP (local Mailpit).
+        services.AddHttpClient<ResendEmailSender>(client =>
+        {
+            client.BaseAddress = new Uri(ResendEmailSender.BaseAddress);
+            client.Timeout = TimeSpan.FromSeconds(15);
+        });
+        services.AddScoped<SmtpEmailSender>();
+        services.AddScoped<IEmailSender>(serviceProvider =>
+            serviceProvider.GetRequiredService<IOptions<EmailOptions>>().Value.UsesResendApi
+                ? serviceProvider.GetRequiredService<ResendEmailSender>()
+                : serviceProvider.GetRequiredService<SmtpEmailSender>());
     }
 
     private static void AddGoogleBooks(IServiceCollection services)

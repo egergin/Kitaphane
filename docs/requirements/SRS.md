@@ -391,7 +391,7 @@ MVP'de aylık okuma grafiği bulunmayacaktır.
 ### Email
 
 - SMTP
-- Production: Resend SMTP
+- Production: Resend (HTTPS API; Render ücretsiz planı SMTP portlarını engeller)
 - Local development: Mailpit
 
 ### Validation

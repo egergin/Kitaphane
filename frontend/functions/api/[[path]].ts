@@ -1,5 +1,5 @@
 /**
- * Cloudflare Pages Function: forwards every /api/* request to the backend on Google Cloud Run
+ * Cloudflare Pages Function: forwards every /api/* request to the backend on Render
  * (docs/deployment/deployment.md). The browser only talks to the Pages origin, so the API needs no
  * CORS and the SameSite=Strict refresh token cookie keeps working.
  *
@@ -9,7 +9,7 @@
  */
 
 interface Env {
-  /** Cloud Run service URL, e.g. https://kitaphane-api-xxxxx-ey.a.run.app */
+  /** Backend service URL, e.g. https://kitaphane-api.onrender.com */
   BACKEND_URL?: string
   PROXY_SHARED_SECRET?: string
 }

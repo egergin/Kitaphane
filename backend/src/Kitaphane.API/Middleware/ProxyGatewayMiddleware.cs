@@ -7,7 +7,7 @@ namespace Kitaphane.API.Middleware;
 /// <summary>
 /// In production the API is only reached through the Cloudflare Pages proxy (frontend/functions/api).
 /// The proxy sends a shared secret and the browser's IP address; requests without the secret are
-/// rejected, so the public Cloud Run URL cannot be used directly and the client IP header cannot be
+/// rejected, so the public backend URL cannot be used directly and the client IP header cannot be
 /// spoofed. The real client IP is used by the auth rate limiter.
 /// Disabled when <c>PROXY_SHARED_SECRET</c> is not configured (local development).
 /// </summary>
@@ -17,7 +17,7 @@ public sealed class ProxyGatewayMiddleware(RequestDelegate next, IConfiguration 
     public const string SecretHeader = "X-Kitaphane-Proxy-Secret";
     public const string ClientIpHeader = "X-Kitaphane-Client-IP";
 
-    /// <summary>Cloud Run and uptime checks may call the health endpoint directly.</summary>
+    /// <summary>The host's health checks and uptime monitors may call the health endpoint directly.</summary>
     private const string HealthPath = "/api/health";
 
     private readonly byte[]? _secret = string.IsNullOrEmpty(configuration[SecretKey])

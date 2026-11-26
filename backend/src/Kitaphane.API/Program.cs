@@ -19,8 +19,9 @@ if (!app.Environment.IsDevelopment() && string.IsNullOrEmpty(app.Configuration[P
         $"Environment variable '{ProxyGatewayMiddleware.SecretKey}' is required outside Development (see docs/deployment/deployment.md).");
 }
 
-// Cloud Run terminates TLS and forwards plain HTTP with X-Forwarded-Proto. Cloud Run is the only
-// ingress, so the header is trusted from any address. The client IP comes from ProxyGatewayMiddleware.
+// The hosting platform (Render) terminates TLS and forwards plain HTTP with X-Forwarded-Proto. Its load
+// balancer is the only ingress, so the header is trusted from any address. The client IP comes from
+// ProxyGatewayMiddleware.
 var forwardedHeaders = new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.XForwardedProto };
 forwardedHeaders.KnownIPNetworks.Clear();
 forwardedHeaders.KnownProxies.Clear();

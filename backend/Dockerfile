@@ -1,4 +1,4 @@
-# Production image for Google Cloud Run (docs/deployment/deployment.md).
+# Production image for the hosted API on Render (docs/deployment/deployment.md).
 # Local development uses Dockerfile.dev through docker-compose.yml.
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
@@ -18,9 +18,9 @@ RUN dotnet publish src/Kitaphane.API/Kitaphane.API.csproj -c Release --no-restor
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
-# Cloud Run sends traffic to $PORT (8080 by default).
+# Workstation GC keeps memory low on small (free tier) instances.
 ENV ASPNETCORE_ENVIRONMENT=Production \
-    ASPNETCORE_HTTP_PORTS=8080 \
+    DOTNET_gcServer=0 \
     DOTNET_NOLOGO=1 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1
 
@@ -30,4 +30,5 @@ COPY --from=build /app/publish .
 USER $APP_UID
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "Kitaphane.API.dll"]
+# The host passes the port to listen on in $PORT (8080 when not set).
+ENTRYPOINT ["sh", "-c", "ASPNETCORE_HTTP_PORTS=${PORT:-8080} exec dotnet Kitaphane.API.dll"]

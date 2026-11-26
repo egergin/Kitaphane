@@ -214,7 +214,7 @@ backend/
 │   ├── Kitaphane.UnitTests/         (Domain kuralları, istatistik/hedef hesapları)
 │   └── Kitaphane.IntegrationTests/  (Testcontainers PostgreSQL, ownership, auth akışları)
 │
-├── Dockerfile        (production: Cloud Run / yalnızca backend)
+├── Dockerfile        (production: Render / yalnızca backend)
 └── Dockerfile.dev    (docker compose)
 ```
 
@@ -251,7 +251,7 @@ frontend/
 │   ├── pages/        (route bileşenleri; feature component'lerini birleştirir)
 │   ├── lib/          (http client, utils)
 │   └── locales/      (tr.json, en.json)
-├── functions/api/    (Cloudflare Pages Function: /api/* → Cloud Run proxy)
+├── functions/api/    (Cloudflare Pages Function: /api/* → Render proxy)
 ├── .env.example
 └── Dockerfile.dev    (docker compose; production'da Cloudflare Pages statik dosyaları sunar)
 ```

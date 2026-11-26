@@ -122,7 +122,7 @@ Cloudflare panelinde *Workers & Pages → Create → Workers → Import a reposi
 2. Project name `kitaphane` (`wrangler.jsonc`'deki `name` ile aynı olmalı).
 3. Build command `npm run build`, Deploy command `npx wrangler deploy`.
 4. *Advanced settings → Root directory (Path)*: **`frontend`**. Node sürümü `frontend/.node-version` dosyasından okunur (24).
-5. *Create and deploy*. İlk deploy bitince Worker'ın *Settings → Variables and Secrets* bölümünde **Add → Type: Secret**, ad `PROXY_SHARED_SECRET`, değer `proxy-secret.txt` içeriği; *Deploy* ile kaydet. (`BACKEND_URL` `wrangler.jsonc`'den gelir; panelden eklenmez.)
+5. *Create and deploy*. İlk deploy bitince Worker'ın *Settings → Variables and Secrets* bölümünde **Add → Type: Secret**, ad `PROXY_SHARED_SECRET`, değer `proxy-secret.txt` içeriği; *Deploy* ile kaydet. Tür mutlaka **Secret** olmalı: Text türündeki değişkenler Git'ten gelen bir sonraki deploy'da silinebilir (`wrangler.jsonc`'deki `keep_vars` bunu önler, ama Secret en güvenlisidir). Bu değer yoksa `/api` istekleri 500 "The API proxy is not configured" döner. (`BACKEND_URL` `wrangler.jsonc`'den gelir; panelden eklenmez.)
 6. Adres: Worker sayfasındaki *Domains & Routes* altında `kitaphane.<hesap>.workers.dev`. İlk kez Worker açılıyorsa Cloudflare hesap için bir `workers.dev` alt alan adı seçmeni ister.
 
 Kurulum bitince geçici dosyaları sil:
